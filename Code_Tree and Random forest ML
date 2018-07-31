@@ -1,0 +1,95 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jul 29 22:45:06 2018
+
+@author: shwetasaloni
+"""
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as snb
+import numpy as np
+from sklearn.cross_validation import train_test_split
+from sklearn import tree
+from sklearn import metrics
+
+df=pd.read_csv('/Users/shwetasaloni/Downloads/HR_comma_sep.csv')
+df.shape #dimension of the dataset
+df.head()
+
+
+snb.boxplot(x="left", y="satisfaction_level", data = df)
+plt.show()
+
+snb.boxplot(x="left", y="last_evaluation", data = df)
+plt.show()
+
+snb.boxplot(x="left", y="number_project", data = df)
+plt.show()
+
+snb.boxplot(x="left", y="average_montly_hours", data =df)
+plt.show()
+
+snb.boxplot(x="left", y="time_spend_company", data =df)
+plt.show()
+
+snb.boxplot(x="left", y="Work_accident", data =df)
+plt.show()
+
+snb.boxplot(x="left", y="promotion_last_5years", data =df)
+plt.show()
+
+df.salary=df.salary.apply(lambda salary:0 if salary == 'low' else 1)
+y=df['left']
+col=['left', 'Department']
+X=df.drop(col, axis=1)
+
+# Data Partition
+X_train, X_test, y_train, y_test=train_test_split(X, y, random_state=20)
+
+
+ 
+# model building
+my_model=tree.DecisionTreeClassifier(max_depth=10, min_samples_split=5, random_state=21)
+ 
+my_model=my_model.fit(X_train, y_train)
+
+#Print different attributes of the tree
+print(my_model.feature_importances_)
+print(my_model.score(X,y))
+
+# Testing the accuracy of the model
+pred= my_model.predict(X_test)
+df_confusion= metrics.confusion_matrix(y_test, pred)
+
+#print results
+print(df_confusion)
+print(my_model.score(X,y))
+
+# RANDOM FOREST CLASSIFIER
+
+from sklearn.ensemble import RandomForestClassifier
+
+forest= RandomForestClassifier(max_depth=10, min_samples_split=2,n_estimators=10, criterion='gini', random_state=1)
+
+forest=forest.fit(X_train, y_train)
+
+#Print different attributes of the tree
+print(forest.feature_importances_)
+print(forest.score(X,y))
+
+# Testing the accuracy of the model
+pred= forest.predict(X_test)
+df_confusion= metrics.confusion_matrix(y_test, pred)
+#Print confusion matrix
+def plot_confusion_matrix(df_confusion, title='Confusion Matrix',cmap=plt.cm.gray_r):
+    plt.matshow(df_confusion, cmap=cmap)
+    plt.title('Confusion Matrix')
+    plt.colorbar()
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    
+plot_confusion_matrix(df_confusion)
+
+#Take Away:  98% in accuracy for predicting that the employee will leave the company.
+
